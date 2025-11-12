@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # DAY 1: Production Network Foundation
 
 ## Infrastructure
@@ -12,6 +11,3 @@
 
 ## Proof
 - Screenshots in `/screenshots`
-=======
-# devops-150
->>>>>>> 0f3bc4f09c76570b3c91ff2f693a5dc4950d759a

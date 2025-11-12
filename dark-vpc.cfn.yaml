@@ -1,13 +1,77 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Production-grade VPC | Mumbai | Free Tier | Multi-AZ'
+Description: CloudFormation template for dark-vpc with 2 subnets and a route table
 
 Resources:
+
   DarkVPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
-      EnableDnsHostnames: true
       EnableDnsSupport: true
+      EnableDnsHostnames: true
       Tags:
         - Key: Name
           Value: dark-vpc
+
+  DarkSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DarkVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: ap-south-1a
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: dark-subnet-a
+
+  DarkSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref DarkVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: ap-south-1b
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: dark-subnet-b
+
+  DarkInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: dark-igw
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref DarkVPC
+      InternetGatewayId: !Ref DarkInternetGateway
+
+  DarkRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref DarkVPC
+      Tags:
+        - Key: Name
+          Value: dark-route-table
+
+  DarkRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref DarkRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref DarkInternetGateway
+
+  DarkSubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref DarkSubnetA
+      RouteTableId: !Ref DarkRouteTable
+
+  DarkSubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref DarkSubnetB
+      RouteTableId: !Ref DarkRouteTable
